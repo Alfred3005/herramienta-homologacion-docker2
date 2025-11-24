@@ -1,0 +1,89 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.dmypy.json
+
+# Virtual environments
+venv/
+env/
+ENV/
+streamlit_app/venv/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs y temporales
+*.log
+logs/
+cache/
+*.tmp
+.cache/
+
+# Datos y uploads (no copiar al contenedor)
+data/
+uploads/
+*.csv
+*.xlsx
+*.pdf
+
+# Documentación de desarrollo
+docs/
+*.md
+!README_DOCKER.md
+
+# Archivos de configuración local
+.env.local
+.env.development
+
+# Backups
+*.backup
+*.bak
+src/validators.backup*/
+
+# Tests
+tests/
+pytest.ini
+
+# Docker (evitar recursión)
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# GitHub
+.github/
+
+# Ejemplos y análisis
+ejemplos/
+analisis/
+ANALISIS_*.md
+REPORTE_*.md
+DISEÑO_*.md
+PLAN_*.md
+ESTADO_*.md
+INFORME_*.md
+PROPUESTA_*.md
+GUÍA_*.md
+FLUJO_*.md
+FASE_*.md
+NEXT_*.md

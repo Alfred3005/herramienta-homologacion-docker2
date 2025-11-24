@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Reglas de Validación APF",
+  "description": "Configuración de reglas y umbrales para validación de puestos",
+  "version": "1.0",
+
+  "verb_validation": {
+    "weak_verb_threshold": 0.5,
+    "description": "Umbral de tolerancia para verbos débiles (50% máximo de funciones)",
+    "critical_verbs": [
+      "apoyar",
+      "participar",
+      "colaborar",
+      "coadyuvar",
+      "contribuir"
+    ]
+  },
+
+  "completeness_validation": {
+    "min_threshold": 0.5,
+    "max_threshold": 2.0,
+    "description": "Umbrales de completitud (50%-200% de funciones esperadas)"
+  },
+
+  "contextual_validation": {
+    "mode": "HYBRID",
+    "description": "Modo de validación: HYBRID (rápido) o COMPLETE (detallado)",
+    "llm_temperature": 0.0,
+    "llm_max_tokens": 1500,
+    "enable_cache": true
+  },
+
+  "institutional_validation": {
+    "require_exact_match": true,
+    "description": "Requiere coincidencia exacta de referencias institucionales",
+    "allow_hierarchical_inheritance": true,
+    "description_inheritance": "Permite herencia de funciones del superior jerárquico"
+  },
+
+  "scoring_weights": {
+    "verb_strength": 0.3,
+    "normative_alignment": 0.4,
+    "completeness": 0.2,
+    "hierarchical_coherence": 0.1,
+    "description": "Pesos para cálculo de score final"
+  },
+
+  "thresholds": {
+    "passing_score": 70,
+    "excellent_score": 90,
+    "description": "Umbrales para clasificación de resultados"
+  }
+}

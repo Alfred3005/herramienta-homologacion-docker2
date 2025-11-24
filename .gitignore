@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# Virtual environments
+venv/
+env/
+ENV/
+streamlit_app/venv/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+cache/
+*.tmp
+
+# Datos
+data/
+uploads/
+*.csv
+*.xlsx
+*.pdf
+streamlit_app/output/
+
+# Configuración local
+.env
+.env.local
+
+# Caché de pickles
+*.pkl
+
+# Tests
+tests/
+pytest.ini
+
+# Backups
+*.backup
+*.bak

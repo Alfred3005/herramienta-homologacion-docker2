@@ -1,0 +1,147 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Jerarquía de Verbos APF",
+  "description": "Define la jerarquía de alcance de verbos de acción según nivel organizacional",
+  "version": "1.0",
+  "levels": [
+    {
+      "id": 1,
+      "name": "Operativo",
+      "description": "Verbos de ejecución básica y operaciones rutinarias",
+      "verbs": [
+        "recopilar",
+        "registrar",
+        "archivar",
+        "transcribir",
+        "capturar",
+        "clasificar"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Técnico",
+      "description": "Verbos de elaboración y procesamiento técnico",
+      "verbs": [
+        "elaborar",
+        "preparar",
+        "calcular",
+        "procesar",
+        "formular",
+        "integrar"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Supervisión",
+      "description": "Verbos de verificación y control",
+      "verbs": [
+        "verificar",
+        "revisar",
+        "controlar",
+        "validar",
+        "supervisar",
+        "monitorear"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Analítico",
+      "description": "Verbos de análisis y diagnóstico",
+      "verbs": [
+        "evaluar",
+        "analizar",
+        "diagnosticar",
+        "investigar",
+        "examinar",
+        "estudiar"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Asesoría",
+      "description": "Verbos de recomendación y asesoría",
+      "verbs": [
+        "proponer",
+        "recomendar",
+        "sugerir",
+        "asesorar",
+        "orientar",
+        "dictaminar"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Coordinación",
+      "description": "Verbos de gestión y coordinación",
+      "verbs": [
+        "coordinar",
+        "gestionar",
+        "organizar",
+        "programar",
+        "planificar",
+        "concertar"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Gerencial",
+      "description": "Verbos de administración y dirección de equipos",
+      "verbs": [
+        "administrar",
+        "supervisar",
+        "dirigir equipos",
+        "implementar",
+        "ejecutar",
+        "conducir"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Decisión",
+      "description": "Verbos de toma de decisiones y autorización",
+      "verbs": [
+        "aprobar",
+        "autorizar",
+        "resolver",
+        "decidir",
+        "determinar",
+        "sancionar"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Estratégico",
+      "description": "Verbos de dirección estratégica y definición de políticas",
+      "verbs": [
+        "dirigir",
+        "establecer",
+        "definir políticas",
+        "planear",
+        "diseñar estrategias",
+        "conducir institucionalmente"
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Normativo",
+      "description": "Verbos de creación normativa y legislativa",
+      "verbs": [
+        "sancionar",
+        "expedir",
+        "decretar",
+        "legislar",
+        "normar",
+        "reglamentar"
+      ]
+    }
+  ],
+  "hierarchical_mapping": {
+    "G11": {"min_level": 7, "max_level": 10, "description": "Secretario"},
+    "J31": {"min_level": 5, "max_level": 8, "description": "Titular OAD"},
+    "M1": {"min_level": 4, "max_level": 7, "description": "Director General"},
+    "N1": {"min_level": 3, "max_level": 6, "description": "Director de Área"},
+    "O1": {"min_level": 2, "max_level": 5, "description": "Subdirector"},
+    "P3": {"min_level": 1, "max_level": 4, "description": "Jefe de Departamento"},
+    "R3": {"min_level": 1, "max_level": 3, "description": "Enlace"}
+  }
+}
