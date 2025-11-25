@@ -29,8 +29,8 @@ Esta es la **versión dockerizada** del Sistema de Homologación APF v5 que util
 
 ```bash
 # 1. Clonar repositorio
-git clone https://github.com/Alfred3005/herramienta-homologacion-docker.git
-cd herramienta-homologacion-docker
+git clone https://github.com/Alfred3005/herramienta-homologacion-docker2.git
+cd herramienta-homologacion-docker2
 
 # 2. Configurar
 cp .env.docker .env

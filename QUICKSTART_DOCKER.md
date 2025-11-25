@@ -28,8 +28,8 @@ docker run --rm --gpus all nvidia/cuda:12.0.0-base-ubuntu22.04 nvidia-smi
 
 ```bash
 # 1. Clonar repositorio
-git clone https://github.com/Alfred3005/herramienta-homologacion-v5.git
-cd herramienta-homologacion-v5
+git clone https://github.com/Alfred3005/herramienta-homologacion-docker2.git
+cd herramienta-homologacion-docker2
 
 # 2. Configurar variables de entorno
 cp .env.docker .env
