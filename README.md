@@ -19,11 +19,13 @@ Esta es la **versión dockerizada** del Sistema de Homologación APF v5 que util
 
 ## ⚡ Inicio Rápido (5 minutos)
 
+> 📘 **¿Primera vez?** Lee [DEPLOY_COMPLETO.md](./DEPLOY_COMPLETO.md) para instrucciones detalladas paso a paso
+
 ### Pre-requisitos
 
 - 🖥️ **Hardware:** 16GB RAM, 6GB VRAM (GPU NVIDIA)
 - 🐳 **Software:** Docker + Docker Compose + NVIDIA Docker
-- 🐧 **OS:** Linux (Ubuntu recomendado)
+- 🐧 **OS:** Linux (Ubuntu recomendado) o Windows (Docker Desktop + WSL2)
 
 ### Instalación
 
