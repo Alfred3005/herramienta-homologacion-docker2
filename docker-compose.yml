@@ -1,5 +1,3 @@
-version: '3.8'
-
 # Sistema de Homologación APF v5 - Docker Compose
 # Arquitectura: Multi-container (Streamlit App + Ollama)
 # Hardware mínimo: 16GB RAM, 6GB VRAM
@@ -40,10 +38,10 @@ services:
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
     networks:
       - apf-network

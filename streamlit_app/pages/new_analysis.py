@@ -668,7 +668,10 @@ def execute_analysis():
         st.error("❌ No se ha cargado el archivo de normativa")
         return
 
-    st.info("🔄 Iniciando análisis con sistema de validación v5.40 (Estable) - Criterio 3 con LLM + GPT-4o-mini...")
+    # Determinar qué LLM se está usando
+    llm_provider_type = os.getenv('LLM_PROVIDER', 'openai').lower()
+    llm_info = "Ollama (Phi-3.5 Local)" if llm_provider_type == 'ollama' else "GPT-4o-mini (API)"
+    st.info(f"🔄 Iniciando análisis con sistema de validación v5.42 (Estable) - LLM: {llm_info}...")
 
     try:
         # Importar validador
@@ -917,15 +920,43 @@ def execute_analysis():
         status_text.text("⚙️ Inicializando sistema de validación...")
         progress_bar.progress(40)
 
-        # Obtener API key
-        openai_api_key = os.getenv('OPENAI_API_KEY')
-        if not openai_api_key:
-            st.error("❌ OPENAI_API_KEY no configurada en .env")
-            return
+        # Configurar LLM Provider según variables de entorno
+        llm_provider_type = os.getenv('LLM_PROVIDER', 'openai').lower()
+        llm_provider = None
 
+        if llm_provider_type == 'ollama':
+            # Usar Ollama local
+            from src.providers.ollama_provider import OllamaProvider
+
+            ollama_base_url = os.getenv('OLLAMA_BASE_URL', 'http://ollama:11434')
+            ollama_model = os.getenv('LLM_MODEL', 'phi3.5')
+
+            st.info(f"🤖 Usando LLM local: Ollama ({ollama_model}) en {ollama_base_url}")
+
+            llm_provider = OllamaProvider(
+                base_url=ollama_base_url,
+                default_model=ollama_model,
+                timeout=120,  # Mayor timeout para modelos locales
+                enable_logging=True
+            )
+        else:
+            # Usar OpenAI API (comportamiento por defecto)
+            from src.providers.openai_provider import OpenAIProvider
+
+            openai_api_key = os.getenv('OPENAI_API_KEY')
+            if not openai_api_key:
+                st.error("❌ OPENAI_API_KEY no configurada en .env")
+                st.info("💡 Si quieres usar LLM local, configura LLM_PROVIDER=ollama en las variables de entorno")
+                return
+
+            st.info(f"🤖 Usando OpenAI API (GPT-4o-mini)")
+
+            llm_provider = OpenAIProvider(api_key=openai_api_key)
+
+        # Crear validador con el provider configurado
         validator = IntegratedValidator(
             normativa_fragments=normativa_fragments,
-            openai_api_key=openai_api_key
+            llm_provider=llm_provider
         )
 
         # Paso 5: Validar puestos

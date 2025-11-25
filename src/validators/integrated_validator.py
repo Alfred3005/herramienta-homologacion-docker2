@@ -63,6 +63,7 @@ class IntegratedValidator:
         self,
         normativa_fragments: Optional[List[str]] = None,
         openai_api_key: Optional[str] = None,
+        llm_provider: Optional[Any] = None,
         use_normativa_cache: bool = True
     ):
         """
@@ -70,18 +71,30 @@ class IntegratedValidator:
 
         Args:
             normativa_fragments: Fragmentos de normativa para validación
-            openai_api_key: API key de OpenAI (para validadores LLM)
+            openai_api_key: API key de OpenAI (DEPRECATED - usar llm_provider)
+            llm_provider: Provider LLM (OpenAIProvider u OllamaProvider)
             use_normativa_cache: Si True, reutiliza NormativaLoader de caché (default: True)
         """
         self.normativa_fragments = normativa_fragments or []
         self.openai_api_key = openai_api_key
+        self.llm_provider = llm_provider
         self.use_normativa_cache = use_normativa_cache
 
         # Crear contexto APF para validadores v4
         self.context = APFContext()
-        if openai_api_key:
+
+        # Si se provee un llm_provider, almacenarlo en el contexto
+        if llm_provider:
+            self.context.set_data('llm_provider', llm_provider, 'IntegratedValidator')
+            logger.info(f"[IntegratedValidator] Usando LLM provider: {type(llm_provider).__name__}")
+        elif openai_api_key:
+            # Fallback: crear OpenAIProvider si solo se pasó API key
+            from src.providers.openai_provider import OpenAIProvider
+            self.llm_provider = OpenAIProvider(api_key=openai_api_key)
+            self.context.set_data('llm_provider', self.llm_provider, 'IntegratedValidator')
             self.context.set_data('openai_api_key', openai_api_key, 'IntegratedValidator')
             self.context.set_data('api_key', openai_api_key, 'IntegratedValidator')
+            logger.info("[IntegratedValidator] Creado OpenAIProvider desde API key (modo compatibilidad)")
 
         # Crear o reutilizar NormativaLoader con caché
         self.normativa_loader = None
@@ -142,7 +155,8 @@ class IntegratedValidator:
         # Inicializar AdvancedQualityValidator v5.33-new (análisis holístico de calidad)
         self.quality_validator = AdvancedQualityValidator(context=self.context)
 
-        logger.info("[IntegratedValidator] Inicializado con validadores LLM v4 + FunctionEvaluator v5.20 + Criterion3 v5.34 CON LLM + QualityValidator v5.33")
+        provider_name = type(self.llm_provider).__name__ if self.llm_provider else "Sin Provider"
+        logger.info(f"[IntegratedValidator] Inicializado con validadores LLM v4 + FunctionEvaluator v5.20 + Criterion3 v5.34 CON LLM + QualityValidator v5.33 | Provider: {provider_name}")
 
     def validate_puesto(
         self,

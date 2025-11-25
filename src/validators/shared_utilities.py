@@ -255,15 +255,60 @@ class APFContext:
     def get_data(self, key: str, default: Any = None) -> Any:
         """
         Obtiene un valor del contexto.
-        
+
         Args:
             key: Clave del dato
             default: Valor por defecto si no existe
-            
+
         Returns:
             Valor almacenado o default
         """
         return self.data.get(key, default)
+
+    def call_llm(self, messages: List[Dict[str, str]], model: str = None, **kwargs) -> str:
+        """
+        Llama al LLM configurado (OpenAI u Ollama) usando el provider del contexto.
+
+        Args:
+            messages: Lista de mensajes en formato ChatGPT
+            model: Modelo específico a usar (opcional)
+            **kwargs: Parámetros adicionales (temperature, max_tokens, etc.)
+
+        Returns:
+            Respuesta del LLM como string
+        """
+        llm_provider = self.get_data('llm_provider')
+
+        if llm_provider:
+            # Usar el provider configurado (OpenAIProvider u OllamaProvider)
+            try:
+                response = llm_provider.generate_completion(
+                    messages=messages,
+                    model=model,
+                    **kwargs
+                )
+                return response
+            except Exception as e:
+                print(f"[APFContext] Error llamando a LLM provider: {e}")
+                raise
+        else:
+            # Fallback a litellm si está disponible y hay API key
+            if LITELLM_AVAILABLE:
+                api_key = self.get_data('openai_api_key') or self.get_data('api_key')
+                if api_key:
+                    try:
+                        response = completion(
+                            model=model or "gpt-4o-mini",
+                            messages=messages,
+                            api_key=api_key,
+                            **kwargs
+                        )
+                        return response.choices[0].message.content
+                    except Exception as e:
+                        print(f"[APFContext] Error llamando a litellm: {e}")
+                        raise
+
+            raise ValueError("No se configuró un LLM provider ni hay API key disponible en el contexto")
     
     def start_step(self, step_name: str, agent_name: str = None) -> None:
         """Inicia un paso de procesamiento"""
