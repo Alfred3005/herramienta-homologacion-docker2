@@ -13,8 +13,8 @@ echo ""
 
 # Configuración
 OLLAMA_HOST="${OLLAMA_HOST:-http://ollama:11434}"
-MODEL_NAME="${MODEL_NAME:-phi3.5}"
-MAX_RETRIES=30
+MODEL_NAME="${MODEL_NAME:-qwen2.5:7b}"  # Modelo recomendado (mejor precisión)
+MAX_RETRIES=60  # 60 intentos × 5s = 5 minutos (aumentado para primer arranque)
 RETRY_INTERVAL=5
 
 # Función para verificar si Ollama está disponible
@@ -58,9 +58,18 @@ pull_model() {
     echo "=================================================="
     echo ""
     echo "⚠️  IMPORTANTE:"
-    echo "   - Este proceso puede tomar 5-15 minutos"
-    echo "   - Tamaño del modelo: ~2.3GB (Phi-3.5 Mini cuantizado)"
-    echo "   - VRAM requerida: ~4.5-5GB"
+    if [[ "$MODEL_NAME" == *"qwen"* ]]; then
+        echo "   - Este proceso puede tomar 10-20 minutos"
+        echo "   - Tamaño del modelo: ~4.7GB (Qwen2.5 7B cuantizado)"
+        echo "   - VRAM requerida: ~6GB"
+    elif [[ "$MODEL_NAME" == *"phi"* ]]; then
+        echo "   - Este proceso puede tomar 5-15 minutos"
+        echo "   - Tamaño del modelo: ~2.3GB (Phi-3.5 Mini cuantizado)"
+        echo "   - VRAM requerida: ~4.5-5GB"
+    else
+        echo "   - Este proceso puede tomar varios minutos"
+        echo "   - Consulta la documentación para tamaño y VRAM"
+    fi
     echo ""
 
     # Usar API de Ollama para pull

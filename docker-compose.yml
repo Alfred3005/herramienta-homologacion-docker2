@@ -40,8 +40,8 @@ services:
       test: ["CMD-SHELL", "ollama list || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 10
-      start_period: 30s
+      retries: 15  # Aumentado para primer arranque
+      start_period: 60s  # Dar más tiempo inicial
 
     networks:
       - apf-network
@@ -58,6 +58,10 @@ services:
 
     volumes:
       - ./docker/init-ollama.sh:/init-ollama.sh:ro
+
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - MODEL_NAME=${LLM_MODEL:-qwen2.5:7b}
 
     entrypoint: ["/bin/bash", "/init-ollama.sh"]
 
