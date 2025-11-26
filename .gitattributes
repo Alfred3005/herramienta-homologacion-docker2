@@ -1,0 +1,27 @@
+# Git attributes para Sistema de Homologación APF v5 Docker
+
+# Asegurar que scripts shell siempre usen LF (Unix) incluso en Windows
+*.sh text eol=lf
+
+# Asegurar line endings correctos para otros archivos de texto
+*.py text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.txt text eol=lf
+*.env text eol=lf
+*.env.* text eol=lf
+
+# Archivos Docker
+Dockerfile text eol=lf
+.dockerignore text eol=lf
+
+# Archivos binarios
+*.pkl binary
+*.pickle binary
+*.xlsx binary
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
