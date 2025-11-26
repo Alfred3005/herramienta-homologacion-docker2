@@ -268,7 +268,7 @@ class FunctionSemanticEvaluator:
         response = robust_openai_call(
             prompt=full_prompt,
             temperature=0.1,  # Baja temperatura para mayor consistencia
-            max_tokens=1500,
+            max_tokens=2500,  # Aumentado para Phi-3.5 (evitar truncamiento)
             context=self.context
         )
 

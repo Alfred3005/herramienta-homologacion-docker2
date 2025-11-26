@@ -281,6 +281,7 @@ class OllamaProvider:
     def _extract_json_with_regex(self, content: str) -> Optional[Dict[str, Any]]:
         """
         Intenta extraer JSON usando regex como fallback.
+        Mejorado para manejar JSON truncado por modelos pequeños como Phi-3.5.
 
         Args:
             content: Contenido donde buscar JSON
@@ -288,6 +289,28 @@ class OllamaProvider:
         Returns:
             Dict parseado o None si no se encuentra
         """
+        # Método 1: Buscar desde primer '{' hasta el último '}' válido
+        try:
+            first_brace = content.find('{')
+            if first_brace != -1:
+                # Encontrar el último '}' y trabajar hacia atrás
+                for i in range(len(content) - 1, first_brace, -1):
+                    if content[i] == '}':
+                        candidate = content[first_brace:i+1]
+                        try:
+                            return json.loads(candidate)
+                        except json.JSONDecodeError:
+                            # Intentar reparar JSON truncado
+                            repaired = self._repair_truncated_json(candidate)
+                            if repaired:
+                                try:
+                                    return json.loads(repaired)
+                                except:
+                                    continue
+        except:
+            pass
+
+        # Método 2: Regex patterns (fallback original)
         json_patterns = [
             r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}',  # Objetos anidados
             r'\[[^\[\]]*(?:\[[^\[\]]*\][^\[\]]*)*\]'  # Arrays anidados
@@ -302,6 +325,47 @@ class OllamaProvider:
                     continue
 
         return None
+
+    def _repair_truncated_json(self, json_str: str) -> Optional[str]:
+        """
+        Intenta reparar JSON truncado agregando comillas y llaves faltantes.
+
+        Args:
+            json_str: String de JSON potencialmente truncado
+
+        Returns:
+            String de JSON reparado o None si no se puede reparar
+        """
+        try:
+            # Eliminar última línea si está incompleta (común en truncamiento)
+            lines = json_str.strip().split('\n')
+
+            # Si la última línea no termina con }, ], o " (indicador de truncamiento)
+            last_line = lines[-1].strip()
+            if last_line and not any(last_line.endswith(c) for c in ['}', ']', '"', ',']):
+                # Remover última línea incompleta
+                json_str = '\n'.join(lines[:-1])
+
+                # Si la línea anterior termina en coma, removerla
+                if json_str.rstrip().endswith(','):
+                    json_str = json_str.rstrip()[:-1]
+
+            # Cerrar comillas abiertas
+            quote_count = json_str.count('"') - json_str.count('\\"')
+            if quote_count % 2 != 0:  # Comillas impares = hay una abierta
+                json_str += '"'
+
+            # Contar y balancear llaves
+            open_braces = json_str.count('{') - json_str.count('\\{')
+            close_braces = json_str.count('}') - json_str.count('\\}')
+
+            # Agregar llaves de cierre faltantes
+            if open_braces > close_braces:
+                json_str += '\n' + ('  ' * (open_braces - close_braces - 1)) + '}'  * (open_braces - close_braces)
+
+            return json_str.strip()
+        except:
+            return None
 
     def _classify_error(self, error: Exception) -> LLMProviderError:
         """
