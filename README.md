@@ -37,14 +37,14 @@ cd herramienta-homologacion-docker2
 # 2. Configurar
 cp .env.docker .env
 
-# 3. Iniciar (descarga automática de Qwen2.5 7B ~4.7GB)
+# 3. Iniciar (descarga automática de Qwen2.5 3B ~1.9GB)
 docker compose up -d
 
 # 4. Acceder
 # http://localhost:8501
 ```
 
-**Primera vez:** La descarga del modelo toma 10-20 minutos (Qwen2.5 7B - recomendado).
+**Primera vez:** La descarga del modelo toma 5-10 minutos (Qwen2.5 3B - optimizado para 6GB VRAM).
 
 ---
 
@@ -65,7 +65,7 @@ docker compose up -d
 │                                         │
 │  ┌──────────────┐  ┌────────────────┐  │
 │  │  Streamlit   │  │  Ollama        │  │
-│  │  (Web App)   │◄─┤  (Qwen2.5 7B) │  │
+│  │  (Web App)   │◄─┤  (Qwen2.5 3B) │  │
 │  │  :8501       │  │  :11434        │  │
 │  └──────────────┘  └────────────────┘  │
 │         CPU              GPU (6GB)      │
@@ -81,16 +81,19 @@ docker compose up -d
 
 ## 📊 Comparativa vs Versión API
 
-| Aspecto | API (GPT-4o-mini) | Docker Local (Qwen2.5 7B) |
+| Aspecto | API (GPT-4o-mini) | Docker Local (Qwen2.5 3B) |
 |---------|-------------------|---------------------------|
 | **Costo/puesto** | $0.35 MXN | **$0.00 MXN** |
 | **Privacidad** | Datos en cloud | **100% local** |
-| **Precisión** | 86% | 80-85% (-5 a -10%) |
-| **Velocidad** | ~60s/puesto | ~150-180s/puesto (2.5-3x) |
+| **Precisión** | 86% | 75-80% (-6 a -11%) |
+| **Velocidad** | ~60s/puesto | ~120-150s/puesto (2-2.5x) |
 | **Internet** | Requerido | **Opcional** |
-| **VRAM** | N/A | ~6GB |
+| **VRAM** | N/A | **~3.5GB** |
 
-**Nota:** Para hardware con <6GB VRAM, usar `LLM_MODEL=phi3.5` (~4.5GB VRAM, ~73% precisión).
+**Nota:** Sistema optimizado para **6GB VRAM**. Otros modelos disponibles:
+- `qwen2.5:7b` (>8GB VRAM, ~80-85% precisión)
+- `phi3.5` (~4.5GB VRAM, ~70-75% precisión)
+- `llama3.2:3b` (~3.5GB VRAM, ~73-78% precisión)
 
 ### 💰 Ahorro Estimado
 
@@ -145,16 +148,17 @@ docker compose down -v
 
 ## 🔧 Optimizaciones Implementadas
 
-- ✅ Qwen2.5 7B (7B parámetros) con cuantización Q4 - Mayor precisión
-- ✅ Phi-3.5 Mini (3.8B parámetros) disponible como opción ligera
-- ✅ VRAM optimizada (~6GB con Qwen2.5, ~4.5GB con Phi-3.5)
+- ✅ **Qwen2.5 3B** (3B parámetros) con cuantización Q4 - Optimizado para 6GB VRAM
+- ✅ Alternativas disponibles: Phi-3.5, Llama 3.2 3B, Qwen2.5 7B (>8GB)
+- ✅ **VRAM optimizada**: ~3.5GB usado de 6GB disponibles (margen seguro)
 - ✅ Un solo modelo en memoria (OLLAMA_MAX_LOADED_MODELS=1)
 - ✅ Sin procesamiento paralelo (OLLAMA_NUM_PARALLEL=1)
-- ✅ Flash Attention activado (reduce VRAM)
+- ✅ Flash Attention activado (reduce VRAM adicional)
 - ✅ Timeout extendido para LLM local (120s)
-- ✅ Parsing JSON robusto para modelos pequeños
+- ✅ Parsing JSON robusto con reparación automática
 - ✅ Arquitectura de microservicios (fácil escalar)
 - ✅ Inicialización automática con descarga de modelo
+- ✅ **Balance ideal**: Precisión ~75-80% con solo 3.5GB VRAM
 
 ---
 

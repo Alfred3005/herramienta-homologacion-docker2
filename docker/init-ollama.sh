@@ -13,7 +13,7 @@ echo ""
 
 # Configuración
 OLLAMA_HOST="${OLLAMA_HOST:-http://ollama:11434}"
-MODEL_NAME="${MODEL_NAME:-qwen2.5:7b}"  # Modelo recomendado (mejor precisión)
+MODEL_NAME="${MODEL_NAME:-qwen2.5:3b}"  # Modelo recomendado (6GB VRAM)
 MAX_RETRIES=60  # 60 intentos × 5s = 5 minutos (aumentado para primer arranque)
 RETRY_INTERVAL=5
 
@@ -58,14 +58,22 @@ pull_model() {
     echo "=================================================="
     echo ""
     echo "⚠️  IMPORTANTE:"
-    if [[ "$MODEL_NAME" == *"qwen"* ]]; then
+    if [[ "$MODEL_NAME" == *"qwen2.5:3b"* ]] || [[ "$MODEL_NAME" == *"qwen"*"3b"* ]]; then
+        echo "   - Este proceso puede tomar 5-10 minutos"
+        echo "   - Tamaño del modelo: ~1.9GB (Qwen2.5 3B cuantizado)"
+        echo "   - VRAM requerida: ~3.5GB"
+    elif [[ "$MODEL_NAME" == *"qwen2.5:7b"* ]] || [[ "$MODEL_NAME" == *"qwen"*"7b"* ]]; then
         echo "   - Este proceso puede tomar 10-20 minutos"
         echo "   - Tamaño del modelo: ~4.7GB (Qwen2.5 7B cuantizado)"
-        echo "   - VRAM requerida: ~6GB"
+        echo "   - VRAM requerida: ~6.5GB"
     elif [[ "$MODEL_NAME" == *"phi"* ]]; then
         echo "   - Este proceso puede tomar 5-15 minutos"
         echo "   - Tamaño del modelo: ~2.3GB (Phi-3.5 Mini cuantizado)"
-        echo "   - VRAM requerida: ~4.5-5GB"
+        echo "   - VRAM requerida: ~4.5GB"
+    elif [[ "$MODEL_NAME" == *"llama"* ]]; then
+        echo "   - Este proceso puede tomar 5-10 minutos"
+        echo "   - Tamaño del modelo: ~2.0GB (Llama 3.2 3B cuantizado)"
+        echo "   - VRAM requerida: ~3.5GB"
     else
         echo "   - Este proceso puede tomar varios minutos"
         echo "   - Consulta la documentación para tamaño y VRAM"

@@ -61,7 +61,7 @@ services:
 
     environment:
       - OLLAMA_HOST=http://ollama:11434
-      - MODEL_NAME=${LLM_MODEL:-qwen2.5:7b}
+      - MODEL_NAME=${LLM_MODEL:-qwen2.5:3b}
 
     entrypoint: ["/bin/bash", "/init-ollama.sh"]
 
