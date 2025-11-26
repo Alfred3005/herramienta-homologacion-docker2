@@ -97,7 +97,6 @@ class HierarchicalImpactLLMValidator:
         try:
             response = robust_openai_call(
                 prompt=prompt,
-                model="openai/gpt-4o-mini",
                 temperature=0.1,
                 max_tokens=800,
                 context=self.context
@@ -157,7 +156,6 @@ class HierarchicalImpactLLMValidator:
         try:
             response = robust_openai_call(
                 prompt=prompt,
-                model="openai/gpt-4o-mini",
                 temperature=0.1,
                 max_tokens=600,
                 context=self.context

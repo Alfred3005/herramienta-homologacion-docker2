@@ -360,7 +360,6 @@ RESPONDE EN JSON:
         try:
             response = robust_openai_call(
                 prompt=prompt,
-                model="openai/gpt-4o-mini",  # Migrado a GPT-4o-mini (ahorro 94.6%)
                 max_tokens=VALIDATION_CONFIG["llm_max_tokens"],
                 temperature=VALIDATION_CONFIG["llm_temperature"],
                 context=self.context
@@ -481,7 +480,6 @@ RESPONDE EN JSON:
         try:
             response = robust_openai_call(
                 prompt=prompt,
-                model="openai/gpt-4o-mini",  # Migrado a GPT-4o-mini (ahorro 94.6%)
                 max_tokens=VALIDATION_CONFIG["llm_max_tokens"],
                 temperature=VALIDATION_CONFIG["llm_temperature"],
                 context=self.context

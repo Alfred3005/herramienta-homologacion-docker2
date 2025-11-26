@@ -103,7 +103,6 @@ class AdvancedQualityValidator:
         try:
             response = robust_openai_call(
                 prompt=full_prompt,
-                model="openai/gpt-4o-mini",  # Migrado a GPT-4o-mini (ahorro 94.6%)
                 temperature=0.1,  # Baja para consistencia
                 max_tokens=3000,  # Aumentar para respuesta JSON completa
                 context=self.context

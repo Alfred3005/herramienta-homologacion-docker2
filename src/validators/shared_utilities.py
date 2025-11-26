@@ -581,7 +581,7 @@ def extract_hierarchical_level(codigo_puesto: str = None,
 
 def robust_openai_call(prompt: str,
                       max_tokens: int = 800,
-                      model: str = "openai/gpt-4o",
+                      model: str = None,
                       temperature: float = 0.1,
                       context: APFContext = None) -> Dict[str, Any]:
     """
@@ -590,6 +590,10 @@ def robust_openai_call(prompt: str,
 
     IMPORTANTE: Requiere que el contexto tenga un llm_provider configurado.
     En Docker, esto será OllamaProvider.
+
+    Si model=None, el provider usará su modelo por defecto:
+    - OllamaProvider: usa default_model (ej: "phi3.5")
+    - OpenAIProvider: usa su default_model configurado
     """
 
     if context is None:
