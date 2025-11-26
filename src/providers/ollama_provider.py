@@ -328,7 +328,8 @@ class OllamaProvider:
 
     def _repair_truncated_json(self, json_str: str) -> Optional[str]:
         """
-        Intenta reparar JSON truncado agregando comillas y llaves faltantes.
+        Intenta reparar JSON truncado/malformado agregando comillas, paréntesis y llaves faltantes.
+        Optimizado para manejar errores de Phi-3.5 Mini.
 
         Args:
             json_str: String de JSON potencialmente truncado
@@ -337,34 +338,65 @@ class OllamaProvider:
             String de JSON reparado o None si no se puede reparar
         """
         try:
-            # Eliminar última línea si está incompleta (común en truncamiento)
+            original = json_str
             lines = json_str.strip().split('\n')
 
-            # Si la última línea no termina con }, ], o " (indicador de truncamiento)
+            # Paso 1: Reparar última línea incompleta
             last_line = lines[-1].strip()
             if last_line and not any(last_line.endswith(c) for c in ['}', ']', '"', ',']):
-                # Remover última línea incompleta
-                json_str = '\n'.join(lines[:-1])
+                # Verificar si es un valor de string truncado (ej: "key": "value_incomplete)
+                if '": "' in last_line or "': '" in last_line:
+                    # Cerrar paréntesis/corchetes abiertos en el string
+                    open_parens = last_line.count('(') - last_line.count(')')
+                    if open_parens > 0:
+                        last_line += ')' * open_parens
 
-                # Si la línea anterior termina en coma, removerla
-                if json_str.rstrip().endswith(','):
-                    json_str = json_str.rstrip()[:-1]
+                    open_brackets = last_line.count('[') - last_line.count(']')
+                    if open_brackets > 0:
+                        last_line += ']' * open_brackets
 
-            # Cerrar comillas abiertas
+                    # Cerrar comilla del string
+                    quote_char = '"' if '": "' in last_line else "'"
+                    if not last_line.endswith(quote_char):
+                        last_line += quote_char
+
+                    # Actualizar línea
+                    lines[-1] = last_line
+                    json_str = '\n'.join(lines)
+                else:
+                    # Remover línea completamente incompleta
+                    json_str = '\n'.join(lines[:-1])
+                    # Si la línea anterior termina en coma, removerla
+                    if json_str.rstrip().endswith(','):
+                        json_str = json_str.rstrip()[:-1]
+
+            # Paso 2: Cerrar comillas abiertas globalmente
             quote_count = json_str.count('"') - json_str.count('\\"')
-            if quote_count % 2 != 0:  # Comillas impares = hay una abierta
+            if quote_count % 2 != 0:  # Comillas impares
                 json_str += '"'
 
-            # Contar y balancear llaves
+            # Paso 3: Balancear llaves
             open_braces = json_str.count('{') - json_str.count('\\{')
             close_braces = json_str.count('}') - json_str.count('\\}')
 
-            # Agregar llaves de cierre faltantes
             if open_braces > close_braces:
-                json_str += '\n' + ('  ' * (open_braces - close_braces - 1)) + '}'  * (open_braces - close_braces)
+                # Agregar comas si el último elemento no la tiene
+                if json_str.rstrip()[-1] not in [',', '{', '[']:
+                    json_str = json_str.rstrip() + ','
+
+                # Cerrar llaves
+                json_str += '\n' + '}' * (open_braces - close_braces)
+
+            # Paso 4: Balancear corchetes (arrays)
+            open_brackets = json_str.count('[') - json_str.count('\\[')
+            close_brackets = json_str.count(']') - json_str.count('\\]')
+
+            if open_brackets > close_brackets:
+                json_str += ']' * (open_brackets - close_brackets)
 
             return json_str.strip()
-        except:
+        except Exception as e:
+            # En caso de error, retornar None
             return None
 
     def _classify_error(self, error: Exception) -> LLMProviderError:
