@@ -285,12 +285,31 @@ class APFContext:
         if llm_provider:
             # Usar el provider configurado (OllamaProvider)
             try:
-                response = llm_provider.generate_completion(
-                    messages=messages,
+                # Importar LLMRequest
+                try:
+                    from src.interfaces.llm_provider import LLMRequest
+                except ImportError:
+                    import sys
+                    import os
+                    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+                    if project_root not in sys.path:
+                        sys.path.insert(0, project_root)
+                    from src.interfaces.llm_provider import LLMRequest
+
+                # Convertir messages a prompt string (tomar último mensaje de usuario)
+                prompt = messages[-1]["content"] if messages else ""
+
+                # Crear request
+                request = LLMRequest(
+                    prompt=prompt,
                     model=model,
-                    **kwargs
+                    max_tokens=kwargs.get('max_tokens', 800),
+                    temperature=kwargs.get('temperature', 0.1)
                 )
-                return response
+
+                # Llamar a complete() y extraer contenido
+                response = llm_provider.complete(request)
+                return response.content
             except Exception as e:
                 print(f"[APFContext] Error llamando a LLM provider: {e}")
                 raise
@@ -591,84 +610,46 @@ def robust_openai_call(prompt: str,
 
             start_time = time.time()
 
-            # Convertir prompt string a messages format
-            messages = [{"role": "user", "content": prompt}]
+            # Importar LLMRequest (lazy import para evitar dependencia circular)
+            try:
+                from src.interfaces.llm_provider import LLMRequest
+            except ImportError:
+                # Fallback para import relativo
+                import sys
+                import os
+                project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+                if project_root not in sys.path:
+                    sys.path.insert(0, project_root)
+                from src.interfaces.llm_provider import LLMRequest
 
-            # Llamar al provider
-            response_content = llm_provider.generate_completion(
-                messages=messages,
+            # Crear request usando la interfaz correcta de OllamaProvider
+            request = LLMRequest(
+                prompt=prompt,
                 model=model,
                 max_tokens=max_tokens,
                 temperature=temperature
             )
 
+            # Llamar a complete_json() que parsea JSON automáticamente
+            result = llm_provider.complete_json(request)
+
             duration = time.time() - start_time
 
-            # Intentar parsear como JSON
-            try:
-                content_cleaned = response_content.strip()
+            # complete_json() ya devuelve el Dict parseado
+            context.complete_step("llm_call", f"JSON parseado exitosamente en {duration:.2f}s")
 
-                # Limpiar markdown wrapper si existe
-                if content_cleaned.startswith('```json'):
-                    content_cleaned = content_cleaned[7:]
-                    if content_cleaned.endswith('```'):
-                        content_cleaned = content_cleaned[:-3]
-                    content_cleaned = content_cleaned.strip()
-                elif content_cleaned.startswith('```'):
-                    lines = content_cleaned.split('\n')
-                    if len(lines) > 2 and lines[-1].strip() == '```':
-                        content_cleaned = '\n'.join(lines[1:-1])
+            if LOGGING_CONFIG.get("log_openai_calls", True):
+                print(f"[LLM] Respuesta recibida de {provider_name} en {duration:.2f}s")
 
-                result = json.loads(content_cleaned)
-
-                context.complete_step("llm_call", f"JSON parseado exitosamente en {duration:.2f}s")
-
-                if LOGGING_CONFIG.get("log_openai_calls", True):
-                    print(f"[LLM] Respuesta recibida de {provider_name} en {duration:.2f}s")
-
-                return {
-                    "status": "success",
-                    "data": result,
-                    "metadata": {
-                        "model": model,
-                        "duration": duration,
-                        "provider": provider_name
-                    }
+            return {
+                "status": "success",
+                "data": result,
+                "metadata": {
+                    "model": model,
+                    "duration": duration,
+                    "provider": provider_name
                 }
-
-            except json.JSONDecodeError as e:
-                # Si falla parseo JSON, buscar JSON con regex
-                json_patterns = [
-                    r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}',
-                    r'\[[^\[\]]*(?:\[[^\[\]]*\][^\[\]]*)*\]'
-                ]
-
-                for pattern in json_patterns:
-                    matches = re.findall(pattern, response_content, re.DOTALL)
-                    for match in matches:
-                        try:
-                            result = json.loads(match)
-                            context.complete_step("llm_call", "JSON extraído con regex")
-                            return {
-                                "status": "success",
-                                "data": result,
-                                "metadata": {
-                                    "model": model,
-                                    "duration": duration,
-                                    "provider": provider_name
-                                }
-                            }
-                        except:
-                            continue
-
-                # Fallback: retornar contenido raw
-                error_msg = f"No se pudo parsear JSON: {str(e)}"
-                context.fail_step("llm_call", error_msg)
-                return {
-                    "status": "partial",
-                    "raw_content": response_content,
-                    "error": error_msg
-                }
+            }
 
         else:
             # NO HAY PROVIDER CONFIGURADO - Esto NO debería pasar en Docker
